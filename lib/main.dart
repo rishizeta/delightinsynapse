@@ -333,9 +333,32 @@ class RivePreviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isWeb = kIsWeb;
+    return _RivePreviewPageWithRefresh(entry: entry);
+  }
+}
+
+class _RivePreviewPageWithRefresh extends StatefulWidget {
+  final RiveFileEntry entry;
+  const _RivePreviewPageWithRefresh({super.key, required this.entry});
+
+  @override
+  State<_RivePreviewPageWithRefresh> createState() => _RivePreviewPageWithRefreshState();
+}
+
+class _RivePreviewPageWithRefreshState extends State<_RivePreviewPageWithRefresh> {
+  int _reloadKey = 0;
+
+  void _replay() {
+    setState(() {
+      _reloadKey++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(entry.displayName, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text(widget.entry.displayName, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         leading: Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: Material(
@@ -351,6 +374,23 @@ class RivePreviewPage extends StatelessWidget {
             ),
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(32),
+                onTap: _replay,
+                child: const SizedBox(
+                  width: 44,
+                  height: 44,
+                  child: Icon(Icons.refresh_rounded, size: 28, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ],
         centerTitle: true,
         elevation: 0.5,
         backgroundColor: Color(0xFF163224),
@@ -358,18 +398,17 @@ class RivePreviewPage extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Material(
-                color: Colors.white,
-                elevation: 2,
-                shadowColor: const Color(0xFF163224),
-                child: RiveAnimation.asset(
-                  'assets/rive/${entry.file}',
-                  fit: BoxFit.contain,
-                ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Material(
+              color: Colors.white,
+              elevation: 2,
+              shadowColor: const Color(0xFF163224),
+              child: RiveAnimation.asset(
+                'assets/rive/${widget.entry.file}',
+                key: ValueKey(_reloadKey),
+                fit: BoxFit.none, // Render at true size, no scaling
+                alignment: Alignment.center,
               ),
             ),
           ),
