@@ -25,14 +25,13 @@ You can run this Flutter app entirely in the cloud using [GitHub Codespaces](htt
 - Open a new terminal in Codespaces (Terminal → New Terminal).
 - Run the following commands:
   ```sh
-  # Download Flutter
+  # Download Flutter (if not already present)
   git clone https://github.com/flutter/flutter.git -b stable
   # Add Flutter to PATH for this session
   export PATH="$PATH:$(pwd)/flutter/bin"
-  # (Optional) Add to ~/.bashrc or ~/.zshrc for persistence
   flutter --version
   ```
-- You should see Flutter’s version info printed.
+- You should see Flutter’s version info printed. You must do this in every new terminal session before running Flutter commands or scripts.
 
 ### 3. **Install Project Dependencies**
 
@@ -63,6 +62,16 @@ flutter run -d web-server
 - The terminal will show a local URL (e.g., `http://127.0.0.1:8000`).
 - Click the **Ports** tab in Codespaces, find the port (e.g., 8000), and click the globe icon to open the app in your browser.
 
+#### **B. Build for GitHub Pages**
+
+To build and deploy your web app for GitHub Pages, use the provided script:
+
+```sh
+./build_web.sh
+```
+
+This will build the Flutter web app and move the output to the `docs/` folder, ready for GitHub Pages hosting. (Make sure Flutter is in your PATH as described above.)
+
 #### **B. Run on Android Emulator**
 
 - Codespaces does **not** support running Android emulators directly in the cloud.
@@ -76,6 +85,7 @@ flutter run -d web-server
 **Summary:**
 
 - **Web preview works great in Codespaces.**
+- **To deploy to GitHub Pages, use `./build_web.sh` after each web build.**
 - **For Android/iOS, use your own machine.**
 
 ---
@@ -116,7 +126,3 @@ flutter run -d web-server
 
 - Flutter cannot list bundled asset directories at runtime, so we use a manifest file.
 - File sizes are calculated at build time by the script.
-
----
-
-Enjoy previewing your Rive animations!
