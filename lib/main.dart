@@ -21,40 +21,44 @@ class DelightInSynapseApp extends StatelessWidget {
         fontFamily: 'Geist',
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
-          primary: Colors.black,
+          primary: Color(0xFF163224),
           onPrimary: Colors.white,
           secondary: Colors.white,
-          onSecondary: Colors.black,
-          error: Colors.black,
+          onSecondary: Color(0xFF163224),
+          error: Color(0xFF163224),
           onError: Colors.white,
-          background: Colors.white,
-          onBackground: Colors.black,
-          surface: Colors.white,
-          onSurface: Colors.black,
+          background: Color(0xFFFAFAFA),
+          onBackground: Color(0xFF163224),
+          surface: Color(0xFFFAFAFA),
+          onSurface: Color(0xFF163224),
         ),
         useMaterial3: true,
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: Color(0xFFFAFAFA),
         cardTheme: CardThemeData(
-          color: Colors.white,
-          elevation: 3,
+          color: const Color(0xFFFFFFFF),
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(4),
+            side: const BorderSide(color: Color(0xFFE4E4E4), width: 1),
           ),
+          shadowColor: const Color.fromRGBO(19, 52, 59, 0.02),
+          surfaceTintColor: Colors.white,
+          margin: EdgeInsets.zero,
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
+          backgroundColor: Color(0xFF163224),
           foregroundColor: Colors.white,
           elevation: 0.5,
           centerTitle: true,
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Color(0xFF163224)),
         textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.black),
-          bodyMedium: TextStyle(color: Colors.black),
-          bodySmall: TextStyle(color: Colors.black),
-          titleLarge: TextStyle(color: Colors.black),
-          titleMedium: TextStyle(color: Colors.black),
-          titleSmall: TextStyle(color: Colors.black),
+          bodyLarge: TextStyle(color: Color(0xFF163224)),
+          bodyMedium: TextStyle(color: Color(0xFF163224)),
+          bodySmall: TextStyle(color: Color(0xFF163224)),
+          titleLarge: TextStyle(color: Color(0xFF163224)),
+          titleMedium: TextStyle(color: Color(0xFF163224)),
+          titleSmall: TextStyle(color: Color(0xFF163224)),
         ),
       ),
       home: const RiveListPage(),
@@ -80,11 +84,13 @@ class _RiveListPageState extends State<RiveListPage> {
     _riveFilesFuture = _loadManifest();
   }
 
-  /// Loads the manifest.json and parses the list of Rive files
+  /// Loads the manifest.json and parses the list of Rive files, sorted by latest modified
   Future<List<RiveFileEntry>> _loadManifest() async {
     final manifestStr = await rootBundle.loadString('assets/manifest.json');
     final List<dynamic> manifest = json.decode(manifestStr);
-    return manifest.map((e) => RiveFileEntry.fromJson(e)).toList();
+    final files = manifest.map((e) => RiveFileEntry.fromJson(e)).toList();
+    files.sort((a, b) => b.modified.compareTo(a.modified)); // latest first
+    return files;
   }
 
   @override
@@ -99,7 +105,7 @@ class _RiveListPageState extends State<RiveListPage> {
         future: _riveFilesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator(color: Colors.black));
+            return const Center(child: CircularProgressIndicator(color: Color(0xFF163224)));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             // Black and white empty state
@@ -107,108 +113,177 @@ class _RiveListPageState extends State<RiveListPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.insert_drive_file_rounded, size: 64, color: Colors.black.withOpacity(0.2)),
+                  Icon(Icons.insert_drive_file_rounded, size: 64, color: Color(0xFF163224).withOpacity(0.2)),
                   const SizedBox(height: 16),
                   const Text(
                     'No Rive files found.',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Color(0xFF163224)),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Add .riv files to assets/rive/ and update the manifest.',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
+                    style: TextStyle(fontSize: 14, color: Color(0xFF163224).withOpacity(0.54)),
                   ),
                 ],
               ),
             );
           }
           final files = snapshot.data!;
-          final list = ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            itemCount: files.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 18),
-            itemBuilder: (context, i) {
-              final entry = files[i];
-              return Card(
-                elevation: 3,
-                margin: EdgeInsets.zero,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => RivePreviewPage(entry: entry),
-                    ),
+          // Group files by date (date only, not time)
+          final Map<DateTime, List<RiveFileEntry>> grouped = {};
+          for (final entry in files) {
+            final dateOnly = DateTime(entry.modified.year, entry.modified.month, entry.modified.day);
+            grouped.putIfAbsent(dateOnly, () => []).add(entry);
+          }
+          // Sort dates descending (latest first)
+          final sortedDates = grouped.keys.toList()
+            ..sort((a, b) => b.compareTo(a));
+          final children = <Widget>[];
+          // Add top padding below the app bar and above the first date section
+          children.add(const SizedBox(height: 24));
+          for (int i = 0; i < sortedDates.length; i++) {
+            final date = sortedDates[i];
+            // Add extra space before each date section except the first
+            if (i > 0) {
+              children.add(const SizedBox(height: 32));
+            }
+            children.add(Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+              child: Text(
+                _formatDateSection(date),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF163224),
+                ),
+              ),
+            ));
+            final entries = grouped[date]!;
+            for (int j = 0; j < entries.length; j++) {
+              final entry = entries[j];
+              children.add(Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  margin: EdgeInsets.only(
+                    top: j == 0 ? 0 : 18, // 18px between list items, none above first item
+                    bottom: 0,
                   ),
-                  splashColor: Colors.black.withOpacity(0.08),
-                  highlightColor: Colors.black.withOpacity(0.04),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
-                    child: Row(
-                      children: [
-                        // Rive logo SVG as icon, no padding or background
-                        SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: SvgPicture.asset(
-                            'assets/rive_logo.svg',
-                            fit: BoxFit.contain,
-                          ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: const Color(0xFFE4E4E4), width: 1),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color.fromRGBO(19, 52, 59, 0.02),
+                        offset: Offset(0, 4),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: Card(
+                    elevation: 0,
+                    margin: EdgeInsets.zero,
+                    clipBehavior: Clip.antiAlias,
+                    color: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: InkWell(
+                      customBorder: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      borderRadius: BorderRadius.circular(4),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RivePreviewPage(entry: entry),
                         ),
-                        const SizedBox(width: 18),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                entry.displayName,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
+                      ),
+                      splashColor: Color(0xFF163224).withOpacity(0.08),
+                      highlightColor: Color(0xFF163224).withOpacity(0.04),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 44,
+                              height: 44,
+                              child: SvgPicture.asset(
+                                'assets/rive_logo.svg',
+                                fit: BoxFit.contain,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                entry.sizeFormatted,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black54,
-                                ),
+                            ),
+                            const SizedBox(width: 18),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    entry.displayName,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF163224),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    entry.sizeFormatted,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFF163224).withOpacity(0.54),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 12),
+                            Icon(Icons.arrow_forward_ios_rounded, size: 20, color: Color(0xFF163224).withOpacity(0.7)),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Icon(Icons.arrow_forward_ios_rounded, size: 20, color: Colors.black.withOpacity(0.7)),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              );
-            },
+              ));
+            }
+          }
+          final content = ListView(
+            padding: EdgeInsets.only(top: 0, bottom: 24),
+            children: children,
           );
-          // Center on web, mobile-first otherwise
           return isWeb
               ? Center(
                   child: Container(
                     constraints: const BoxConstraints(maxWidth: 440),
-                    child: list,
+                    child: content,
                   ),
                 )
-              : list;
+              : content;
         },
       ),
     );
+  }
+
+  String _formatDateSection(DateTime date) {
+    // Format as 'Month Day, Year' (e.g., July 15, 2025)
+    final months = [
+      '', 'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return "${months[date.month]} ${date.day}, ${date.year}";
   }
 }
 
 /// Data class for a Rive file entry
 class RiveFileEntry {
+
   final String file;
   final int size;
+  final DateTime modified;
 
-  RiveFileEntry({required this.file, required this.size});
+  RiveFileEntry({required this.file, required this.size, required this.modified});
 
   String get displayName {
     // Remove extension
@@ -239,6 +314,7 @@ class RiveFileEntry {
     return RiveFileEntry(
       file: json['file'] as String,
       size: json['size'] as int,
+      modified: DateTime.tryParse(json['modified'] ?? '') ?? DateTime(1970),
     );
   }
 
@@ -277,7 +353,7 @@ class RivePreviewPage extends StatelessWidget {
         ),
         centerTitle: true,
         elevation: 0.5,
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF163224),
       ),
       body: Center(
         child: Padding(
@@ -289,6 +365,7 @@ class RivePreviewPage extends StatelessWidget {
               child: Material(
                 color: Colors.white,
                 elevation: 2,
+                shadowColor: const Color(0xFF163224),
                 child: RiveAnimation.asset(
                   'assets/rive/${entry.file}',
                   fit: BoxFit.contain,

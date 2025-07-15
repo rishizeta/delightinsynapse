@@ -105,11 +105,18 @@ This will build the Flutter web app and move the output to the `docs/` folder, r
 ## Adding New Rive Files
 
 1. Place your new `.riv` file in `assets/rive/`
-2. Run the manifest generator:
+2. The app groups files by the date you uploaded (copied) them to `assets/rive/`.
+   - The date is based on the file's modification time on disk, in IST (Indian Standard Time).
+   - If you want to set a specific upload date (e.g., for backdating), use:
+     ```sh
+     touch -d '2025-07-15 12:00:00' assets/rive/yourfile.riv
+     ```
+   - If you just copy the file, the modification time will be the current time (your upload time).
+3. Run the manifest generator:
    ```sh
-   dart assets/rive/generate_manifest.dart
+   dart assets/generate_manifest.dart
    ```
-3. Your new file will appear in the app list automatically!
+4. Your new file will appear in the app list automatically, grouped by upload date!
 
 ## Project Structure
 

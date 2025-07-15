@@ -23,9 +23,12 @@ void main() async {
 
   final manifest = files.map((file) {
     final stat = file.statSync();
+    // Convert to IST (UTC+5:30)
+    final ist = stat.modified.toUtc().add(const Duration(hours: 5, minutes: 30));
     return {
       'file': p.basename(file.path),
       'size': stat.size, // in bytes
+      'modified': ist.toIso8601String(),
     };
   }).toList();
 
