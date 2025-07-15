@@ -16,14 +16,32 @@ dependencies:
     sdk: flutter
   rive: ^0.13.4
   path: ^1.8.3
+  flutter_svg: ^2.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  image_path: "assets/app_icon.png"
+  android: true
+  ios: true
+  web:
+    generate: true
+    image_path: "assets/app_icon.png"
 
 flutter:
   uses-material-design: true
   assets:
     - assets/rive/
+    - assets/manifest.json
+    - assets/rive_logo.svg
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/font/Inter/Inter-VariableFont_opsz,wght.ttf
+        - asset: assets/font/Inter/Inter-Italic-VariableFont_opsz,wght.ttf
+          style: italic
 # Place all your .riv files in assets/rive/
 # The manifest.json will be auto-generated in this folder

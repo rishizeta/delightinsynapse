@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:rive/rive.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   runApp(const DelightInSynapseApp());
@@ -15,12 +16,25 @@ class DelightInSynapseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DelightInSynapse',
+      title: 'Delight in Synapse',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: 'Inter',
+        colorScheme: const ColorScheme(
+          brightness: Brightness.light,
+          primary: Colors.black,
+          onPrimary: Colors.white,
+          secondary: Colors.white,
+          onSecondary: Colors.black,
+          error: Colors.black,
+          onError: Colors.white,
+          background: Colors.white,
+          onBackground: Colors.black,
+          surface: Colors.white,
+          onSurface: Colors.black,
+        ),
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFF7F6FB),
-        cardTheme: CardTheme(
+        scaffoldBackgroundColor: Colors.white,
+        cardTheme: CardThemeData(
           color: Colors.white,
           elevation: 3,
           shape: RoundedRectangleBorder(
@@ -28,12 +42,20 @@ class DelightInSynapseApp extends StatelessWidget {
           ),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.deepPurple,
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
           elevation: 0.5,
           centerTitle: true,
         ),
-        iconTheme: const IconThemeData(color: Colors.deepPurple),
+        iconTheme: const IconThemeData(color: Colors.black),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(color: Colors.black),
+          bodySmall: TextStyle(color: Colors.black),
+          titleLarge: TextStyle(color: Colors.black),
+          titleMedium: TextStyle(color: Colors.black),
+          titleSmall: TextStyle(color: Colors.black),
+        ),
       ),
       home: const RiveListPage(),
       debugShowCheckedModeBanner: false,
@@ -60,7 +82,7 @@ class _RiveListPageState extends State<RiveListPage> {
 
   /// Loads the manifest.json and parses the list of Rive files
   Future<List<RiveFileEntry>> _loadManifest() async {
-    final manifestStr = await rootBundle.loadString('assets/rive/manifest.json');
+    final manifestStr = await rootBundle.loadString('assets/manifest.json');
     final List<dynamic> manifest = json.decode(manifestStr);
     return manifest.map((e) => RiveFileEntry.fromJson(e)).toList();
   }
@@ -70,26 +92,26 @@ class _RiveListPageState extends State<RiveListPage> {
     final isWeb = kIsWeb;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rive Preview', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Delight in Synapse', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: FutureBuilder<List<RiveFileEntry>>(
         future: _riveFilesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(color: Colors.black));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            // Beautiful empty state
+            // Black and white empty state
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.insert_drive_file_rounded, size: 64, color: Colors.deepPurple.withOpacity(0.2)),
+                  Icon(Icons.insert_drive_file_rounded, size: 64, color: Colors.black.withOpacity(0.2)),
                   const SizedBox(height: 16),
                   const Text(
                     'No Rive files found.',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.deepPurple),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -118,21 +140,20 @@ class _RiveListPageState extends State<RiveListPage> {
                       builder: (_) => RivePreviewPage(entry: entry),
                     ),
                   ),
-                  splashColor: Colors.deepPurple.withOpacity(0.08),
-                  highlightColor: Colors.deepPurple.withOpacity(0.04),
+                  splashColor: Colors.black.withOpacity(0.08),
+                  highlightColor: Colors.black.withOpacity(0.04),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                     child: Row(
                       children: [
-                        // Placeholder for Rive icon/thumbnail
-                        Container(
+                        // Rive logo SVG as icon, no padding or background
+                        SizedBox(
                           width: 44,
                           height: 44,
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurple.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(12),
+                          child: SvgPicture.asset(
+                            'assets/rive_logo.svg',
+                            fit: BoxFit.contain,
                           ),
-                          child: const Icon(Icons.animation_rounded, size: 28, color: Colors.deepPurple),
                         ),
                         const SizedBox(width: 18),
                         Expanded(
@@ -144,7 +165,7 @@ class _RiveListPageState extends State<RiveListPage> {
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.deepPurple,
+                                  color: Colors.black,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -159,7 +180,7 @@ class _RiveListPageState extends State<RiveListPage> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Icon(Icons.arrow_forward_ios_rounded, size: 20, color: Colors.deepPurple.withOpacity(0.7)),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 20, color: Colors.black.withOpacity(0.7)),
                       ],
                     ),
                   ),
@@ -189,8 +210,30 @@ class RiveFileEntry {
 
   RiveFileEntry({required this.file, required this.size});
 
-  String get displayName => p.basenameWithoutExtension(file);
+  String get displayName {
+    // Remove extension
+    String name = p.basenameWithoutExtension(file);
+    // Replace underscores, hyphens, and non-alphanumeric with space
+    name = name.replaceAll(RegExp(r'[_\-]+'), ' ');
+    name = name.replaceAll(RegExp(r'[^A-Za-z0-9 ]'), '');
+    // Insert space before capital letters (except the first)
+    name = name.replaceAllMapped(
+      RegExp(r'(?<!^)([A-Z])'),
+      (Match m) => ' ${m.group(0)}',
+    );
+    // Collapse multiple spaces
+    name = name.replaceAll(RegExp(r' +'), ' ');
+    // Capitalize first letter of each word
+    String titleCase = name.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+    return titleCase;
+  }
+
   String get sizeFormatted => _formatBytes(size);
+  // Get the actual file name in assets/rive/ (use the manifest file name as-is)
+  String get assetFileName => file;
 
   factory RiveFileEntry.fromJson(Map<String, dynamic> json) {
     return RiveFileEntry(
@@ -216,7 +259,7 @@ class RivePreviewPage extends StatelessWidget {
     final isWeb = kIsWeb;
     return Scaffold(
       appBar: AppBar(
-        title: Text(entry.displayName, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(entry.displayName, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
         leading: Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: Material(
@@ -227,13 +270,14 @@ class RivePreviewPage extends StatelessWidget {
               child: const SizedBox(
                 width: 44,
                 height: 44,
-                child: Icon(Icons.arrow_back_rounded, size: 28, color: Colors.deepPurple),
+                child: Icon(Icons.arrow_back_rounded, size: 28, color: Colors.white),
               ),
             ),
           ),
         ),
         centerTitle: true,
         elevation: 0.5,
+        backgroundColor: Colors.black,
       ),
       body: Center(
         child: Padding(
@@ -256,4 +300,4 @@ class RivePreviewPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

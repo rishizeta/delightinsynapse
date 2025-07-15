@@ -47,7 +47,7 @@ flutter pub get
 ### 5. **Generate the Manifest**
 
 ```sh
-dart assets/rive/generate_manifest.dart
+dart assets/generate_manifest.dart
 ```
 
 - This creates/updates `assets/rive/manifest.json` with your files and sizes.

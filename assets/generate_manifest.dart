@@ -6,7 +6,7 @@ import 'package:path/path.dart' as p;
 /// and generates a manifest.json file with their names and sizes.
 ///
 /// Usage:
-///   dart assets/rive/generate_manifest.dart
+///   dart assets/generate_manifest.dart
 
 void main() async {
   final riveDir = Directory('assets/rive');
@@ -29,7 +29,7 @@ void main() async {
     };
   }).toList();
 
-  final manifestFile = File('assets/rive/manifest.json');
+  final manifestFile = File('assets/manifest.json');
   manifestFile.writeAsStringSync(JsonEncoder.withIndent('  ').convert(manifest));
   print('Generated manifest.json with ${manifest.length} files.');
 } 
