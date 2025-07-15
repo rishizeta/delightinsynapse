@@ -67,7 +67,7 @@ flutter run -d web-server
 To build and deploy your web app for GitHub Pages, use the provided script:
 
 ```sh
-./build_web.sh
+flutter clean && flutter pub get && ./build_web.sh
 ```
 
 This will build the Flutter web app and move the output to the `docs/` folder, ready for GitHub Pages hosting. (Make sure Flutter is in your PATH as described above.)

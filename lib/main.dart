@@ -18,7 +18,7 @@ class DelightInSynapseApp extends StatelessWidget {
     return MaterialApp(
       title: 'Delight in Synapse',
       theme: ThemeData(
-        fontFamily: 'Inter',
+        fontFamily: 'Geist',
         colorScheme: const ColorScheme(
           brightness: Brightness.light,
           primary: Colors.black,
