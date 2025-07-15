@@ -3,7 +3,7 @@
 
 set -e
 
-flutter build web
+flutter build web --base-href /delightinsynapse/
 rm -rf docs
 mv build/web docs
 
