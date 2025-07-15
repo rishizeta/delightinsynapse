@@ -1,0 +1,29 @@
+name: delightinsynapse
+
+description: >-
+  A mobile-first Flutter app to preview all your Rive (.riv) files. Works on Android, iOS, and Web.
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+# Add dependencies
+dependencies:
+  flutter:
+    sdk: flutter
+  rive: ^0.13.4
+  path: ^1.8.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/rive/
+# Place all your .riv files in assets/rive/
+# The manifest.json will be auto-generated in this folder
